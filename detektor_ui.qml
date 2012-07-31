@@ -24,7 +24,7 @@ Rectangle {
     
     gradient: Gradient {
          GradientStop { position: 0.0; color: "black" }
-         GradientStop { position: 0.5; color: "#535353" }
+         GradientStop { position: 0.5; color: "#434343" }
          GradientStop { position: 1.0; color: "black" }
     }
     
@@ -43,21 +43,71 @@ Rectangle {
         State {
             name: "LoadingState"
             PropertyChanges { target: loadscreen; state: "VisibleState" }
-            StateChangeScript {
-                name: "run_loadscreen"
-                script: {
-                }
-            }
         },
         State {
             name: "BusyScreenState"
             PropertyChanges { target: loadscreen; state: "NotVisibleState" }
+            PropertyChanges { target: consoletext; state: "ActiveState" }
         },
         State {
             name: "DangerousBusyScreenState"
             PropertyChanges { target: messagebox; visible: false }
         }
     ]
+    
+    Rectangle {
+        id: consoletext
+        color: "transparent"
+        x: 50
+        y: 50
+        width: canvas.width / 2 - 50
+        height: canvas.height / 2 - 50
+        state: "NotActiveState"
+        clip: true
+        states: [
+            State {
+                name: "ActiveState"
+                PropertyChanges { target: textappender; running: true }
+                PropertyChanges { target: consoletext; visible: true }
+                PropertyChanges { target: consoletext; opacity: 1 }
+            },
+            State {
+                name: "NotActiveState"
+                PropertyChanges { target: consoletext; visible: false }
+            }
+        ]
+        SequentialAnimation {
+            id: "textappender"
+            loops: Animation.Infinite
+            ScriptAction { script: consoletext.appendOneLine(); }
+            PropertyAnimation { duration: 100 }
+        }
+        ListModel {
+            id: consoletext_model
+            ListElement {
+                display: "Foobar"
+            }
+            ListElement {
+                display: "Foobar"
+            }
+            ListElement {
+                display: "Foobar"
+            }
+        }
+        function appendOneLine() {
+            consoletext_model.append({ display: "new text" });
+            consoletext_text.positionViewAtEnd();
+        }
+        ListView {
+            id: consoletext_text
+            anchors.fill: parent
+            model: consoletext_model
+            delegate: Text {
+                color: "#489C26"
+                text: display
+            }
+        }
+    }
     
     Rectangle {
         id: loadscreen
@@ -109,9 +159,10 @@ Rectangle {
                     NumberAnimation { target: bar; property: "opacity"; to: 0; duration: 200 }
                     NumberAnimation { target: loadscreen; property: "opacity"; to: 0; duration: 200 }
                 }
+                PropertyAnimation { target: canvas; property: "state"; to: "BusyScreenState"; duration: 0 }
             }
         }
-        border.color: "#3A5539"
+        border.color: "black"
         border.width: 2
         color: "black"
         state: "NotVisibleState"
