@@ -1,0 +1,18 @@
+This is a program which displays a fancy tech-looking screen,
+which has been used in a movie. It's probably useless for
+everyone.
+
+If you should still want to run it,
+ * You need the "Perfect Dark Zero" TTF font (google it) in
+   /usr/share/fonts/TTF/Perfect Dark Zero.ttf
+ * Since this program was to be used on only one notebook
+   it is written for 1440x900 resolution and will break in
+   any other resolution
+
+Other than that, to run it
+qmake
+make
+./detektor
+
+or just
+qmlviewer detektor_ui.qml
