@@ -1,6 +1,7 @@
 import QtQuick 1.1
 
 Rectangle {
+    z: 1000
     id: wave
     property int size: 0
     property int xzero: 0
@@ -11,11 +12,11 @@ Rectangle {
     height: size
     radius: size/2
     color: "transparent"
-    border.width: 2
+    border.width: 3
     border.color: "red"
     ParallelAnimation {
         running: true
-        NumberAnimation { target: wave; property: "size"; to: 120; duration: 700 }
-        NumberAnimation { target: wave; property: "opacity"; to: 0; duration: 700 }
+        NumberAnimation { target: wave; property: "size"; to: 170; duration: 900 }
+        NumberAnimation { target: wave; property: "opacity"; to: 0; duration: 900 }
     }
 }

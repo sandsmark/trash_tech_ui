@@ -6,7 +6,7 @@ Rectangle {
     color: "black"
     width: 1440
     height: 900
-    state: "NotStartedState"
+    state: "ConsoleState"
     focus: true
     
     Repeater {
@@ -28,10 +28,39 @@ Rectangle {
          GradientStop { position: 1.0; color: "black" }
     }
     
-    Keys.onPressed: {
-        event.accepted = true;
-        if ( canvas.state == "NotStartedState" ) {
+    Keys.onEnterPressed: {
+        if ( canvas.state == "ConsoleState" ) {
             canvas.state = "LoadingState";
+            event.accepted = true;
+        }
+    }
+    
+    Keys.onPressed: {
+        if ( canvas.state == "ConsoleState" ) {
+            event.accepted = true;
+            if ( event.key == Qt.Key_Return ) {
+                canvas.state = "LoadingState";
+            }
+            else {
+                consolescreen.addChar();
+            }
+        }
+        else {
+            if ( event.key == Qt.Key_Space ) {
+                event.accepted = true;
+                if ( canvas.state == "NotStartedState" ) {
+                    canvas.state = "ConsoleState";
+                }
+                else if ( canvas.state == "LoadingState" ) {
+                    canvas.state = "BusyScreenState";
+                }
+                else if ( canvas.state == "BusyScreenState" ) {
+                    canvas.state = "DangerousBusyScreenState";
+                }
+                else if ( canvas.state == "DangerousBusyScreenState" ) {
+                    canvas.state = "BusyScreenState";
+                }
+            }
         }
     }
     
@@ -39,28 +68,112 @@ Rectangle {
         State {
             name: "NotStartedState"
             PropertyChanges { target: loadscreen; state: "NotVisibleState" }
+            PropertyChanges { target: consolescreen; state: "NotVisibleState" }
+        },
+        State {
+            name: "ConsoleState"
+            PropertyChanges { target: consolescreen; state: "VisibleState" }
         },
         State {
             name: "LoadingState"
             PropertyChanges { target: loadscreen; state: "VisibleState" }
+            PropertyChanges { target: consolescreen; state: "NotVisibleState" }
             PropertyChanges { target: fancyUiElementsGrid; x: -2000 }
         },
         State {
             name: "BusyScreenState"
+            PropertyChanges { target: consolescreen; state: "NotVisibleState" }
             PropertyChanges { target: loadscreen; state: "NotVisibleState" }
             PropertyChanges { target: consoletext; state: "ActiveState" }
             PropertyChanges { target: bargraph; state: "ActiveState" }
             PropertyChanges { target: statusScreen; state: "ActiveState" }
             PropertyChanges { target: gaugeScreen; state: "ActiveState" }
             PropertyChanges { target: fancyUiElementsGrid; x: 50 }
+            PropertyChanges { target: smallDiagramText; state: "NormalState" }
         },
         State {
             name: "DangerousBusyScreenState"
-            PropertyChanges { target: messagebox; visible: false }
+            PropertyChanges { target: consolescreen; state: "NotVisibleState" }
+            PropertyChanges { target: loadscreen; state: "NotVisibleState" }
+            PropertyChanges { target: consoletext; state: "ActiveState" }
+            PropertyChanges { target: bargraph; state: "ActiveState" }
+            PropertyChanges { target: statusScreen; state: "ActiveState" }
+            PropertyChanges { target: gaugeScreen; state: "ActiveState" }
+            PropertyChanges { target: fancyUiElementsGrid; x: 50 }
+            PropertyChanges { target: smallDiagramText; state: "AlienActivityState" }
         }
     ]
     
     FontLoader { id: fancyfont; source: "/usr/share/fonts/TTF/Perfect Dark Zero.ttf" }
+    
+    Rectangle {
+        id: consolescreen
+        color: "transparent"
+        x: 50
+        property int displayedCharacters: 0
+        property int blinkState: 0
+        property string writeText: "/usr/bin/beamcontrol -ui -ra 35.1 -dec 217.4 -intensity 74.0"
+        function refreshText() {
+            var text = "  <small>»</small>  ";
+            var realText = ""
+            if ( displayedCharacters > writeText.length ) {
+                displayedCharacters = writeText.length;
+            }
+            for ( var i = 0; i < displayedCharacters; i++ ) {
+                realText += writeText[i];
+            }
+            text += realText;
+            if ( blinkState == 1 ) {
+                text += "<span style=\"color: #95FF00\">|</span>";
+            }
+            consolescreen_text.text = text;
+        }
+        function addChar() {
+            displayedCharacters += 1;
+            refreshText();
+        }
+        function blink() {
+            if ( blinkState == 0 ) {
+                blinkState = 1;
+            }
+            else {
+                blinkState = 0;
+            }
+            refreshText();
+        }
+        SequentialAnimation {
+            running: true
+            loops: Animation.Infinite
+            PropertyAnimation { duration: 400 }
+            ScriptAction { script: consolescreen.blink() }
+        }
+        Behavior on opacity {
+            NumberAnimation { duration: 300 }
+        }
+        Behavior on visible {
+            PropertyAnimation { duration: 300 }
+        }
+        states: [
+            State { 
+                name: "NotVisibleState"
+                PropertyChanges { target: consolescreen; visible: false }
+                PropertyChanges { target: consolescreen; opacity: 0 }
+            },
+            State {
+                name: "VisibleState"
+                PropertyChanges { target: consolescreen; visible: true }
+            }
+        ]
+        Text {
+            id: consolescreen_text
+            color: "#489C26"
+            text: ""
+            font {
+                family: fancyfont.name
+                pointSize: 27
+            }
+        }
+    }
     
     Grid {
         id: fancyUiElementsGrid
@@ -160,6 +273,7 @@ Rectangle {
             color: "transparent"
             clip: true
             property int lastValue: 100
+            property int isInAlienSequence: 0
             state: "NotActiveState"
             border {
                 width: 1
@@ -204,24 +318,43 @@ Rectangle {
             }
             function newDataValue() {
                 data[1].positionViewAtEnd();
-                lastValue = lastValue + Math.random() * 70 - 35
-                if ( lastValue < 200 ) {
-                    lastValue += Math.random() * 5
+                if ( canvas.state == "DangerousBusyScreenState" && isInAlienSequence == 0 ) {
+                    if ( Math.random() < 0.1 ) {
+                        isInAlienSequence = 1;
+                    }
                 }
-                if ( lastValue > 200 ) {
-                    lastValue -= Math.random() * 5
+                if ( isInAlienSequence > 0 ) {
+                    var alienSequenceData = Array(2, 3, 5, 10, 20, 40, 90, 140, 200, 270, 0, 0,
+                                                  0, 0, 1, 10, 20, 40, 60, 80, 60, 40, 20, 10, 1, 0, 0, 0);
+                    if ( isInAlienSequence >= alienSequenceData.length ) {
+                        isInAlienSequence = 0;
+                    }
+                    else {
+                        isInAlienSequence += 1;
+                    }
+                    data[0].append({ yvalue: alienSequenceData[isInAlienSequence], first_color: "#FF1717", second_color: "#7A0B0B" })
                 }
-                
-                if ( lastValue < 50 ) {
-                    lastValue += 10
+                else {
+                    // default behaviour
+                    lastValue = lastValue + Math.random() * 70 - 35
+                    if ( lastValue < 200 ) {
+                        lastValue += Math.random() * 5
+                    }
+                    if ( lastValue > 200 ) {
+                        lastValue -= Math.random() * 5
+                    }
+                    
+                    if ( lastValue < 50 ) {
+                        lastValue += 10
+                    }
+                    else if ( lastValue > 350 ) {
+                        lastValue -= 10
+                    }
+                    else if ( Math.random() < 0.02 ) {
+                        lastValue += Math.random() * 200 - 100
+                    }
+                    data[0].append({ yvalue: lastValue, first_color: "#3B5100", second_color: "#77A200" })
                 }
-                else if ( lastValue > 350 ) {
-                    lastValue -= 10
-                }
-                else if ( Math.random() < 0.02 ) {
-                    lastValue += Math.random() * 200 - 100
-                }
-                data[0].append({ yvalue: lastValue })
             }
         }
         
@@ -345,10 +478,10 @@ Rectangle {
                 }
                 Text {
                     anchors.right: parent.right
-                    color: "#80D600"
+                    color: canvas.state == "DangerousBusyScreenState" ? "#FF2C2C" : "#80D600"
                     font.family: fancyfont.name
                     font.pointSize: 28
-                    text: "ONLINE"
+                    text: canvas.state == "DangerousBusyScreenState" ? "JAMMED" : "ONLINE"
                     horizontalAlignment: Text.AlignRight
                 }
             }
@@ -435,29 +568,54 @@ Rectangle {
                         width: 425
                         height: 200
                         color: "transparent"
-                        SequentialAnimation {
-                            loops: Animation.Infinite
-                            running: true
-                            ScriptAction {
-                                script: smallgraph.data[0].append({ yvalue: 20 + Math.random()*4-2 })
+                        function doAddDefaultData() {
+                            smallgraph.data[0].clear()
+                            for ( var i = 0; i < 200; i++ ) {
+                                smallgraph.data[0].append({ yvalue: 20 + Math.random()*4-2, first_color: "#3B5100", second_color: "#77A200" });
                             }
-                            PropertyAnimation { duration: 10 }
+                        }
+                        function doAddAlienData() {
+                            smallgraph.data[0].clear()
+                            var alienSequenceData = Array(2, 3, 5, 10, 20, 40, 90, 140, 200, 270, 0, 0,
+                                                  0, 0, 1, 10, 20, 40, 60, 80, 60, 40, 20, 10, 1, 0, 0, 0);
+                            for ( var i = 0; i < alienSequenceData.length*4; i++ ) {
+                                smallgraph.data[0].append({ yvalue: alienSequenceData[Math.floor(i/4)] / 2.5, first_color: "#FF1717", second_color: "#7A0B0B" })
+                            }
                         }
                         Text {
                             id: smallDiagramText
+                            states: [
+                                State {
+                                    name: "NormalState"
+                                    PropertyChanges { target: smallDiagramText; text: "No abnormal activity detected." }
+                                    PropertyChanges { target: smallDiagramText; color: "white" }
+                                    PropertyChanges { target: smallDiagramText; x: 20 }
+                                    PropertyChanges { target: smallDiagramTextBlink; running: false }
+                                    PropertyChanges { target: smallDiagramText; opacity: 1 }
+                                    StateChangeScript { script: smallgraph.doAddDefaultData() }
+                                },
+                                State {
+                                    name: "AlienActivityState"
+                                    PropertyChanges { target: smallDiagramText; text: "ALIEN ACTIVITY DETECTED" }
+                                    PropertyChanges { target: smallDiagramText; color: "#FF2C2C" }
+                                    PropertyChanges { target: smallDiagramText; x: 60 }
+                                    PropertyChanges { target: smallDiagramTextBlink; running: true }
+                                    StateChangeScript { script: smallgraph.doAddAlienData() }
+                                }
+                            ]
                             font.pointSize: 28
                             font.family: fancyfont.name
-                            text: "No abnormal activity detected."
                             color: "white"
                             x: 20
                             y: 20
                             SequentialAnimation {
+                                id: smallDiagramTextBlink
                                 running: false;
                                 loops: Animation.Infinite;
-                                NumberAnimation { target: diagramText; property: "opacity"; to: 1.0; duration: 150 }
+                                NumberAnimation { target: smallDiagramText; property: "opacity"; to: 1.0; duration: 20 }
                                 PropertyAnimation { duration: 300 }
-                                NumberAnimation { target: diagramText; property: "opacity"; to: 0.0; duration: 150 }
-                                PropertyAnimation { duration: 100 }
+                                NumberAnimation { target: smallDiagramText; property: "opacity"; to: 0.0; duration: 20 }
+                                PropertyAnimation { duration: 300 }
                             }
                         }
                     }
@@ -468,55 +626,97 @@ Rectangle {
                     width: 600
                     height: 175
                     Rectangle {
+                        anchors.centerIn: parent
+                        Text {
+                            id: beam_status_text
+                            color: "white"
+                            font {
+                                pointSize: 28
+                                family: fancyfont.name
+                            }
+                            text: "Beam Status: <span style=\"color:yellow\">ADJUSTING...</span>"
+                        }
+                    }
+                    Rectangle {
                         id: crosshair
                         x: 30
                         y: 20
                         Rectangle {
                             id: ray
+                            border {
+                                width: 1
+                                color: "black"
+                            }
                             x: 50
                             y: 50
-                            z: 10
+                            z: 100
                             color: "#FF2600"
-                            width: 8
-                            height: 8
-                            radius: 4
+                            width: 12
+                            height: 12
+                            radius: 6
                             Behavior on x {
-                                NumberAnimation { duration: 100 }
+                                NumberAnimation { duration: 300 }
                             }
                             Behavior on y {
-                                NumberAnimation { duration: 100 }
+                                NumberAnimation { duration: 300 }
                             }
                             function jiggle() {
-                                ray.x += Math.random() * 8 - 4
-                                ray.y += Math.random() * 8 - 4
+                                var drift_x = 0
+                                var drift_y = 0
                                 if ( ray.x > 110 ) {
-                                    ray.x -= 3
+                                    drift_x -= 9;
                                 }
                                 if ( ray.y > 110 ) {
-                                    ray.y -= 3
+                                    drift_y -= 9;
                                 }
                                 if ( ray.x < 20 ) {
-                                    ray.x += 3
+                                    drift_x += 9;
                                 }
                                 if ( ray.y < 20 ) {
-                                    ray.y += 3
+                                    drift_y += 9;
                                 }
-                                var d = Math.sqrt(ray.x*ray.x + ray.y*ray.y);
-                                if ( d )
+                                
+                                // drift towards the center
+                                drift_x += (65 - ray.x) * 0.2;
+                                drift_y += (85 - ray.y) * 0.2;
+                                
+                                drift_x += Math.random() * 36 - 18;
+                                drift_y += Math.random() * 36 - 18;
+                                
+                                ray.x += drift_x
+                                ray.y += drift_y
+                                
+                                function sqr(x) { return x*x; }
+                                var d = Math.sqrt(sqr(ray.x-65, 2) + sqr(ray.y-85));
+                                if ( d > 65 ) {
+                                    large_circle.color = "#333333"
+                                    smaller_circle.color = "#333333"
+                                    beam_status_text.text = "Beam Alignment: <span style=\"color:red\">CRITICAL</span>"
+                                }
+                                else if ( d <= 65 && d > 35 ) {
+                                    large_circle.color = "#CFA600";
+                                    smaller_circle.color = "#333333"
+                                    beam_status_text.text = "Beam Alignment: <span style=\"color:yellow\">ADJUSTING...</span>"
+                                }
+                                else {
+                                    large_circle.color = "#333333"
+                                    smaller_circle.color = "#469200"
+                                    beam_status_text.text = "Beam Alignment: <span style=\"color:green\">LOCKED</span>"
+                                }
                             }
                             function emitWave() {
                                 var comp = Qt.createComponent("RayWave.qml");
                                 var sprite = comp.createObject(crosshair, {
                                     "size": 10,
-                                    "xzero": ray.x + 3,
-                                    "yzero": ray.y + 3
+                                    "xzero": ray.x + 6,
+                                    "yzero": ray.y + 6
                                 });
                             }
                             SequentialAnimation {
                                 running: true
                                 loops: Animation.Infinite
                                 ScriptAction { script: ray.jiggle() }
-                                PropertyAnimation { duration: 100 }
+                                PropertyAnimation { duration: 300 }
                             }
                             SequentialAnimation {
                                 running: true
@@ -526,6 +726,7 @@ Rectangle {
                             }
                         }
                         Rectangle {
+                            z: 10
                             y: 10
                             width: 1
                             height: 150
@@ -533,6 +734,7 @@ Rectangle {
                             x: 65
                         }
                         Rectangle {
+                            z: 10
                             y: 85
                             x: -10
                             height: 1
@@ -543,6 +745,7 @@ Rectangle {
                             x: 0
                             y: 20
                             color: "transparent"
+                            id: large_circle
                             width: 130
                             height: 130
                             radius: 65
@@ -550,17 +753,24 @@ Rectangle {
                                 width: 1
                                 color: "white"
                             }
+                            Behavior on color {
+                                ColorAnimation { duration: 200 }
+                            }
                         }
                         Rectangle {
                             x: 30
                             y: 50
                             color: "transparent"
+                            id: smaller_circle
                             width: 70
                             height: 70
                             radius: 35
                             border {
                                 width: 1
                                 color: "white"
+                            }
+                            Behavior on color {
+                                ColorAnimation { duration: 200 }
                             }
                         }
                         Rectangle {

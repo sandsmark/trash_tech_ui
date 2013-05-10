@@ -15,10 +15,9 @@ Rectangle {
             y: canvas.height - yvalue
             width: 2
             opacity: 0.6
-            color: "#77A200"
             gradient: Gradient {
-                GradientStop { position: 1.0; color: "#3B5100" }
-                GradientStop { position: 0.0; color: "#77A200" }
+                GradientStop { position: 1.0; color: first_color }
+                GradientStop { position: 0.0; color: second_color }
             }
             Rectangle {
                 color: "white"
