@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>detektor_ui.qml</file>
+        <file>BarGraph.qml</file>
+        <file>GaugeDisplay.qml</file>
+        <file>Perfect Dark Zero.ttf</file>
+        <file>RayWave.qml</file>
+    </qresource>
+</RCC>

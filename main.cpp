@@ -1,12 +1,12 @@
-#include <QtGui/QApplication>
-#include <QtDeclarative/QDeclarativeView>
-#include <QtDeclarative/qdeclarative.h>
+#include <QGuiApplication>
+#include <QQuickView>
 
 int main(int argc, char** argv)
 {
-    QApplication app(argc, argv);
-    QDeclarativeView view;
-    view.setSource(QUrl::fromLocalFile("detektor_ui.qml"));
-    view.show();
+    QGuiApplication app(argc, argv);
+    QQuickView *view = new QQuickView;
+    view->setSource(QUrl("qrc:/detektor_ui.qml"));
+    view->showFullScreen();
+
     return app.exec();
 }

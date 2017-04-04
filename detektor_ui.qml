@@ -1,111 +1,183 @@
-import QtQuick 1.1
-import Qt 4.7
+import QtQuick 2.6
+import QtQuick.Window 2.2
 
 Rectangle {
     id: canvas
     color: "black"
-    width: 1440
-    height: 900
+    anchors.fill: parent
     state: "ConsoleState"
     focus: true
-    
+
     Repeater {
         model: 720
         Rectangle {
             z: 99999
             opacity: 0.4
             color: "black"
-            width: 1440
+            width: canvas.width
             height: 1
             x: 0
-            y: 2*index
+            y: 2 * index
         }
     }
-    
+
     gradient: Gradient {
-         GradientStop { position: 0.0; color: "black" }
-         GradientStop { position: 0.5; color: "#434343" }
-         GradientStop { position: 1.0; color: "black" }
+        GradientStop {
+            position: 0.0
+            color: "black"
+        }
+        GradientStop {
+            position: 0.5
+            color: "#434343"
+        }
+        GradientStop {
+            position: 1.0
+            color: "black"
+        }
     }
-    
+
     Keys.onEnterPressed: {
-        if ( canvas.state == "ConsoleState" ) {
-            canvas.state = "LoadingState";
-            event.accepted = true;
+        if (canvas.state == "ConsoleState") {
+            canvas.state = "LoadingState"
+            event.accepted = true
         }
     }
-    
+
     Keys.onPressed: {
-        if ( canvas.state == "ConsoleState" ) {
-            event.accepted = true;
-            if ( event.key == Qt.Key_Return ) {
-                canvas.state = "LoadingState";
+        if (canvas.state == "ConsoleState") {
+            event.accepted = true
+            if (event.key === Qt.Key_Return) {
+                canvas.state = "LoadingState"
+            } else {
+                consolescreen.addChar()
             }
-            else {
-                consolescreen.addChar();
-            }
-        }
-        else {
-            if ( event.key == Qt.Key_Space ) {
-                event.accepted = true;
-                if ( canvas.state == "NotStartedState" ) {
-                    canvas.state = "ConsoleState";
-                }
-                else if ( canvas.state == "LoadingState" ) {
-                    canvas.state = "BusyScreenState";
-                }
-                else if ( canvas.state == "BusyScreenState" ) {
-                    canvas.state = "DangerousBusyScreenState";
-                }
-                else if ( canvas.state == "DangerousBusyScreenState" ) {
-                    canvas.state = "BusyScreenState";
+        } else {
+            if (event.key === Qt.Key_Space) {
+                event.accepted = true
+                if (canvas.state == "NotStartedState") {
+                    canvas.state = "ConsoleState"
+                } else if (canvas.state == "LoadingState") {
+                    canvas.state = "BusyScreenState"
+                } else if (canvas.state == "BusyScreenState") {
+                    canvas.state = "DangerousBusyScreenState"
+                } else if (canvas.state == "DangerousBusyScreenState") {
+                    canvas.state = "BusyScreenState"
                 }
             }
         }
     }
-    
+
     states: [
         State {
             name: "NotStartedState"
-            PropertyChanges { target: loadscreen; state: "NotVisibleState" }
-            PropertyChanges { target: consolescreen; state: "NotVisibleState" }
+            PropertyChanges {
+                target: loadscreen
+                state: "NotVisibleState"
+            }
+            PropertyChanges {
+                target: consolescreen
+                state: "NotVisibleState"
+            }
         },
         State {
             name: "ConsoleState"
-            PropertyChanges { target: consolescreen; state: "VisibleState" }
+            PropertyChanges {
+                target: consolescreen
+                state: "VisibleState"
+            }
         },
         State {
             name: "LoadingState"
-            PropertyChanges { target: loadscreen; state: "VisibleState" }
-            PropertyChanges { target: consolescreen; state: "NotVisibleState" }
-            PropertyChanges { target: fancyUiElementsGrid; x: -2000 }
+            PropertyChanges {
+                target: loadscreen
+                state: "VisibleState"
+            }
+            PropertyChanges {
+                target: consolescreen
+                state: "NotVisibleState"
+            }
+            PropertyChanges {
+                target: fancyUiElementsGrid
+                x: -2000
+            }
         },
         State {
             name: "BusyScreenState"
-            PropertyChanges { target: consolescreen; state: "NotVisibleState" }
-            PropertyChanges { target: loadscreen; state: "NotVisibleState" }
-            PropertyChanges { target: consoletext; state: "ActiveState" }
-            PropertyChanges { target: bargraph; state: "ActiveState" }
-            PropertyChanges { target: statusScreen; state: "ActiveState" }
-            PropertyChanges { target: gaugeScreen; state: "ActiveState" }
-            PropertyChanges { target: fancyUiElementsGrid; x: 50 }
-            PropertyChanges { target: smallDiagramText; state: "NormalState" }
+            PropertyChanges {
+                target: consolescreen
+                state: "NotVisibleState"
+            }
+            PropertyChanges {
+                target: loadscreen
+                state: "NotVisibleState"
+            }
+            PropertyChanges {
+                target: consoletext
+                state: "ActiveState"
+            }
+            PropertyChanges {
+                target: bargraph
+                state: "ActiveState"
+            }
+            PropertyChanges {
+                target: statusScreen
+                state: "ActiveState"
+            }
+            PropertyChanges {
+                target: gaugeScreen
+                state: "ActiveState"
+            }
+            PropertyChanges {
+                target: fancyUiElementsGrid
+                x: 50
+            }
+            PropertyChanges {
+                target: smallDiagramText
+                state: "NormalState"
+            }
         },
         State {
             name: "DangerousBusyScreenState"
-            PropertyChanges { target: consolescreen; state: "NotVisibleState" }
-            PropertyChanges { target: loadscreen; state: "NotVisibleState" }
-            PropertyChanges { target: consoletext; state: "ActiveState" }
-            PropertyChanges { target: bargraph; state: "ActiveState" }
-            PropertyChanges { target: statusScreen; state: "ActiveState" }
-            PropertyChanges { target: gaugeScreen; state: "ActiveState" }
-            PropertyChanges { target: fancyUiElementsGrid; x: 50 }
-            PropertyChanges { target: smallDiagramText; state: "AlienActivityState" }
+            PropertyChanges {
+                target: consolescreen
+                state: "NotVisibleState"
+            }
+            PropertyChanges {
+                target: loadscreen
+                state: "NotVisibleState"
+            }
+            PropertyChanges {
+                target: consoletext
+                state: "ActiveState"
+            }
+            PropertyChanges {
+                target: bargraph
+                state: "ActiveState"
+            }
+            PropertyChanges {
+                target: statusScreen
+                state: "ActiveState"
+            }
+            PropertyChanges {
+                target: gaugeScreen
+                state: "ActiveState"
+            }
+            PropertyChanges {
+                target: fancyUiElementsGrid
+                x: 50
+            }
+            PropertyChanges {
+                target: smallDiagramText
+                state: "AlienActivityState"
+            }
         }
     ]
-    
-    FontLoader { id: fancyfont; source: "/usr/share/fonts/TTF/Perfect Dark Zero.ttf" }
-    
+
+    FontLoader {
+        id: fancyfont
+        source: "Perfect Dark Zero.ttf"
+    }
+
     Rectangle {
         id: consolescreen
         color: "transparent"
@@ -114,54 +186,70 @@ Rectangle {
         property int blinkState: 0
         property string writeText: "/usr/bin/beamcontrol -ui -ra 35.1 -dec 217.4 -intensity 74.0"
         function refreshText() {
-            var text = "  <small>»</small>  ";
+            var text = "  <small>»</small>  "
             var realText = ""
-            if ( displayedCharacters > writeText.length ) {
-                displayedCharacters = writeText.length;
+            if (displayedCharacters > writeText.length) {
+                displayedCharacters = writeText.length
             }
-            for ( var i = 0; i < displayedCharacters; i++ ) {
-                realText += writeText[i];
+            for (var i = 0; i < displayedCharacters; i++) {
+                realText += writeText[i]
             }
-            text += realText;
-            if ( blinkState == 1 ) {
-                text += "<span style=\"color: #95FF00\">|</span>";
+            text += realText
+            if (blinkState == 1) {
+                text += "<span style=\"color: #95FF00\">|</span>"
             }
-            consolescreen_text.text = text;
+            consolescreen_text.text = text
         }
         function addChar() {
-            displayedCharacters += 1;
-            refreshText();
+            displayedCharacters += 1
+            refreshText()
         }
         function blink() {
-            if ( blinkState == 0 ) {
-                blinkState = 1;
+            if (blinkState == 0) {
+                blinkState = 1
+            } else {
+                blinkState = 0
             }
-            else {
-                blinkState = 0;
-            }
-            refreshText();
+            refreshText()
         }
         SequentialAnimation {
             running: true
             loops: Animation.Infinite
-            PropertyAnimation { duration: 400 }
-            ScriptAction { script: consolescreen.blink() }
+            PropertyAnimation {
+                duration: 400
+            }
+            ScriptAction {
+                script: consolescreen.blink()
+            }
         }
         Behavior on opacity {
-            NumberAnimation { duration: 300 }
+            NumberAnimation {
+                duration: 300
+            }
         }
         Behavior on visible {
-            PropertyAnimation { duration: 300 }
+            PropertyAnimation {
+                duration: 300
+            }
         }
         states: [
-            State { 
+            State {
                 name: "NotVisibleState"
-                PropertyChanges { target: consolescreen; visible: false }
-                PropertyChanges { target: consolescreen; opacity: 0 }
+                PropertyChanges {
+                    target: consolescreen
+                    visible: false
+                }
+                PropertyChanges {
+                    target: consolescreen
+                    opacity: 0
+                }
             },
             State {
                 name: "VisibleState"
-                PropertyChanges { target: consolescreen; visible: true }
+                PropertyChanges {
+                    target: consolescreen
+                    visible: true
+                }
             }
         ]
         Text {
@@ -174,16 +262,18 @@ Rectangle {
             }
         }
     }
-    
+
     Grid {
         id: fancyUiElementsGrid
         x: -2000
         y: 50
         columns: 2
         spacing: 50
-        
+
         Behavior on x {
-            NumberAnimation { duration: 300 }
+            NumberAnimation {
+                duration: 300
+            }
         }
 
         Rectangle {
@@ -196,62 +286,64 @@ Rectangle {
             states: [
                 State {
                     name: "ActiveState"
-                    PropertyChanges { target: textappender; running: true }
-                    PropertyChanges { target: consoletext; visible: true }
-                    PropertyChanges { target: consoletext; opacity: 1 }
+                    PropertyChanges {
+                        target: textappender
+                        running: true
+                    }
+                    PropertyChanges {
+                        target: consoletext
+                        visible: true
+                    }
+                    PropertyChanges {
+                        target: consoletext
+                        opacity: 1
+                    }
                 },
                 State {
                     name: "NotActiveState"
-                    PropertyChanges { target: consoletext; visible: false }
+                    PropertyChanges {
+                        target: consoletext
+                        visible: false
+                    }
                 }
             ]
             SequentialAnimation {
-                id: "textappender"
+                id: textappender
                 loops: Animation.Infinite
-                ScriptAction { script: consoletext.maybeAppendOneLine(); }
-                PropertyAnimation { duration: 50 }
+                ScriptAction {
+                    script: consoletext.maybeAppendOneLine()
+                }
+                PropertyAnimation {
+                    duration: 50
+                }
             }
             ListModel {
                 id: consoletext_model
             }
             function maybeAppendOneLine() {
-                if ( Math.random() > 0.8 ) {
-                    appendOneLine();
+                if (Math.random() > 0.8) {
+                    appendOneLine()
                 }
             }
             function select(from) {
-                var len = from.length;
-                return from[Math.floor(Math.random() * len)];
+                var len = from.length
+                return from[Math.floor(Math.random() * len)]
             }
             function trashtextGenerator() {
-                var sentences = new Array(
-                    "Trying to retrieve %n from sensors...",
-                    "Waiting for %n measurements...",
-                    "Calibrating %n detection unit...",
-                    "Received data: %n = %f",
-                    "Received data: %n = %f",
-                    "Received data: %n = %f",
-                    "%n detector has been successfully (re-)initialized."
-                );
-                var nouns = new Array(
-                    "Flux density",
-                    "Antimatter density",
-                    "Dark energy",
-                    "Dark matter density",
-                    "Space-time coefficient",
-                    "Overflow",
-                    "Radiation data",
-                    "Temperature coefficient"
-                );
-                var sentence = select(sentences);
-                sentence = sentence.replace("%n", select(nouns));
-                sentence = sentence.replace("%f", Math.round(Math.random() * 20000) / 100);
-                
-                return sentence;
+                var sentences = ["Trying to retrieve %n from sensors...", "Waiting for %n measurements...", "Calibrating %n detection unit...", "Received data: %n = %f", "Received data: %n = %f", "Received data: %n = %f", "%n detector has been successfully (re-)initialized."]
+                var nouns = ["Flux density", "Antimatter density", "Dark energy", "Dark matter intensity", "Space-time coefficient", "Overflow", "Radiation data", "Temperature coefficient"]
+                var sentence = select(sentences)
+                sentence = sentence.replace("%n", select(nouns))
+                sentence = sentence.replace("%f", Math.round(
+                                                Math.random() * 20000) / 100)
+
+                return sentence
             }
             function appendOneLine() {
-                consoletext_model.append({ display: trashtextGenerator() });
-                consoletext_text.positionViewAtEnd();
+                consoletext_model.append({
+                                             display: trashtextGenerator()
+                                         })
+                consoletext_text.positionViewAtEnd()
             }
             ListView {
                 id: consoletext_text
@@ -265,16 +357,13 @@ Rectangle {
                 }
             }
         }
-        
+
         BarGraph {
             id: bargraph
             width: canvas.width / 2 - 75
             height: canvas.height / 2 - 75
             color: "transparent"
             clip: true
-            property int lastValue: 100
-            property int isInAlienSequence: 0
-            state: "NotActiveState"
             border {
                 width: 1
                 color: "#777777"
@@ -283,81 +372,50 @@ Rectangle {
                 id: diagramText
                 font.pointSize: 32
                 font.family: fancyfont.name
-                text: "Beam Intensity = 74.0 MJy"
+                text: "Pressure compensation = 74.0"
                 color: "white"
                 x: 25
                 y: -5
                 SequentialAnimation {
-                    running: true;
-                    loops: Animation.Infinite;
-                    NumberAnimation { target: diagramText; property: "opacity"; to: 1.0; duration: 150 }
-                    PropertyAnimation { duration: 300 }
-                    NumberAnimation { target: diagramText; property: "opacity"; to: 0.0; duration: 150 }
-                    PropertyAnimation { duration: 100 }
+                    running: true
+                    loops: Animation.Infinite
+                    NumberAnimation {
+                        target: diagramText
+                        property: "opacity"
+                        to: 1.0
+                        duration: 150
+                    }
+                    PropertyAnimation {
+                        duration: 300
+                    }
+                    NumberAnimation {
+                        target: diagramText
+                        property: "opacity"
+                        to: 0.0
+                        duration: 150
+                    }
+                    PropertyAnimation {
+                        duration: 100
+                    }
                 }
             }
-            states: [
-                State {
-                    name: "ActiveState"
-                    StateChangeScript {
-                        script: graphScroller.running = true
-                    }
-                },
-                State {
-                    name: "NotActiveState"
-                }
-            ]
             Behavior on x {
-                NumberAnimation { duration: 1000 }
+                NumberAnimation {
+                    duration: 1000
+                }
             }
             SequentialAnimation {
-                id: "graphScroller"
+                id: graphScroller
                 loops: Animation.Infinite
-                ScriptAction { script: bargraph.newDataValue(); }
-                PropertyAnimation { duration: 60 }
-            }
-            function newDataValue() {
-                data[1].positionViewAtEnd();
-                if ( canvas.state == "DangerousBusyScreenState" && isInAlienSequence == 0 ) {
-                    if ( Math.random() < 0.1 ) {
-                        isInAlienSequence = 1;
-                    }
+                ScriptAction {
+                    script: bargraph.newDataValue()
                 }
-                if ( isInAlienSequence > 0 ) {
-                    var alienSequenceData = Array(2, 3, 5, 10, 20, 40, 90, 140, 200, 270, 0, 0,
-                                                  0, 0, 1, 10, 20, 40, 60, 80, 60, 40, 20, 10, 1, 0, 0, 0);
-                    if ( isInAlienSequence >= alienSequenceData.length ) {
-                        isInAlienSequence = 0;
-                    }
-                    else {
-                        isInAlienSequence += 1;
-                    }
-                    data[0].append({ yvalue: alienSequenceData[isInAlienSequence], first_color: "#FF1717", second_color: "#7A0B0B" })
-                }
-                else {
-                    // default behaviour
-                    lastValue = lastValue + Math.random() * 70 - 35
-                    if ( lastValue < 200 ) {
-                        lastValue += Math.random() * 5
-                    }
-                    if ( lastValue > 200 ) {
-                        lastValue -= Math.random() * 5
-                    }
-                    
-                    if ( lastValue < 50 ) {
-                        lastValue += 10
-                    }
-                    else if ( lastValue > 350 ) {
-                        lastValue -= 10
-                    }
-                    else if ( Math.random() < 0.02 ) {
-                        lastValue += Math.random() * 200 - 100
-                    }
-                    data[0].append({ yvalue: lastValue, first_color: "#3B5100", second_color: "#77A200" })
+                PropertyAnimation {
+                    duration: 60
                 }
             }
         }
-        
+
         Rectangle {
             id: statusScreen
             color: "transparent"
@@ -367,16 +425,23 @@ Rectangle {
             states: [
                 State {
                     name: "ActiveState"
-                    PropertyChanges { target: statusScreen; visible: true }
+                    PropertyChanges {
+                        target: statusScreen
+                        visible: true
+                    }
                     StateChangeScript {
                         script: graphScroller.running = true
                     }
                 },
                 State {
                     name: "NotActiveState"
-                    PropertyChanges { target: statusScreen; visible: false }
+                    PropertyChanges {
+                        target: statusScreen
+                        visible: false
+                    }
                 }
             ]
+
             Grid {
                 columns: 2
                 spacing: 0
@@ -387,14 +452,13 @@ Rectangle {
                     text: "Beam status:"
                 }
                 Text {
-                    anchors.right: parent.right
                     color: "#80D600"
                     font.family: fancyfont.name
                     font.pointSize: 28
                     text: "ACTIVE"
                     horizontalAlignment: Text.AlignRight
                 }
-                
+
                 Text {
                     color: "white"
                     font.family: fancyfont.name
@@ -402,14 +466,13 @@ Rectangle {
                     text: "Cooling system:"
                 }
                 Text {
-                    anchors.right: parent.right
                     color: "#80D600"
                     font.family: fancyfont.name
                     font.pointSize: 28
                     text: "ONLINE"
                     horizontalAlignment: Text.AlignRight
                 }
-                
+
                 Text {
                     color: "white"
                     font.family: fancyfont.name
@@ -417,14 +480,13 @@ Rectangle {
                     text: "Alignment:"
                 }
                 Text {
-                    anchors.right: parent.right
                     color: "#D6C100"
                     font.family: fancyfont.name
                     font.pointSize: 28
                     text: "RA: 35.1     DEC: 217.4"
                     horizontalAlignment: Text.AlignRight
                 }
-                
+
                 Text {
                     color: "white"
                     font.family: fancyfont.name
@@ -432,14 +494,13 @@ Rectangle {
                     text: "Detector Gain:"
                 }
                 Text {
-                    anchors.right: parent.right
                     color: "#80D600"
                     font.family: fancyfont.name
                     font.pointSize: 28
                     text: "87.4 dB"
                     horizontalAlignment: Text.AlignRight
                 }
-                
+
                 Text {
                     color: "white"
                     font.family: fancyfont.name
@@ -447,14 +508,13 @@ Rectangle {
                     text: "Emergency recovery system:"
                 }
                 Text {
-                    anchors.right: parent.right
                     color: "#FF2C2C"
                     font.family: fancyfont.name
                     font.pointSize: 28
                     text: "OFF"
                     horizontalAlignment: Text.AlignRight
                 }
-                
+
                 Text {
                     color: "white"
                     font.family: fancyfont.name
@@ -462,14 +522,13 @@ Rectangle {
                     text: "Network connection:"
                 }
                 Text {
-                    anchors.right: parent.right
                     color: "#80D600"
                     font.family: fancyfont.name
                     font.pointSize: 28
                     text: "OK"
                     horizontalAlignment: Text.AlignRight
                 }
-                
+
                 Text {
                     color: "white"
                     font.family: fancyfont.name
@@ -477,7 +536,6 @@ Rectangle {
                     text: "Security system:"
                 }
                 Text {
-                    anchors.right: parent.right
                     color: canvas.state == "DangerousBusyScreenState" ? "#FF2C2C" : "#80D600"
                     font.family: fancyfont.name
                     font.pointSize: 28
@@ -495,17 +553,23 @@ Rectangle {
             states: [
                 State {
                     name: "ActiveState"
-                    PropertyChanges { target: gaugeScreen; visible: true }
+                    PropertyChanges {
+                        target: gaugeScreen
+                        visible: true
+                    }
                     StateChangeScript {
                         script: graphScroller.running = true
                     }
                 },
                 State {
                     name: "NotActiveState"
-                    PropertyChanges { target: gaugeScreen; visible: false }
+                    PropertyChanges {
+                        target: gaugeScreen
+                        visible: false
+                    }
                 }
             ]
-            
+
             Grid {
                 columns: 1
                 Grid {
@@ -513,13 +577,13 @@ Rectangle {
                     columns: 4
                     spacing: 50
                     function alterBarValue(bar, defaultValue) {
-                        if ( bar.value > defaultValue + 10 ) {
-                            bar.value -= 4;
+                        if (bar.value > defaultValue + 10) {
+                            bar.value -= 4
                         }
-                        if ( bar.value < defaultValue - 10 ) {
-                            bar.value += 4;
+                        if (bar.value < defaultValue - 10) {
+                            bar.value += 4
                         }
-                        bar.value += Math.random()*2 - 1
+                        bar.value += Math.random() * 2 - 1
                     }
                     GaugeDisplay {
                         id: temperatureBar
@@ -530,9 +594,12 @@ Rectangle {
                             running: true
                             loops: Animation.Infinite
                             ScriptAction {
-                                script: rightBottomGrid.alterBarValue(temperatureBar, 25)
+                                script: rightBottomGrid.alterBarValue(
+                                            temperatureBar, 25)
                             }
-                            PropertyAnimation { duration: 100 }
+                            PropertyAnimation {
+                                duration: 100
+                            }
                         }
                     }
                     GaugeDisplay {
@@ -544,9 +611,12 @@ Rectangle {
                             running: true
                             loops: Animation.Infinite
                             ScriptAction {
-                                script: rightBottomGrid.alterBarValue(randomBar, 70)
+                                script: rightBottomGrid.alterBarValue(
+                                            randomBar, 70)
                             }
-                            PropertyAnimation { duration: 100 }
+                            PropertyAnimation {
+                                duration: 100
+                            }
                         }
                     }
                     GaugeDisplay {
@@ -558,9 +628,12 @@ Rectangle {
                             running: true
                             loops: Animation.Infinite
                             ScriptAction {
-                                script: rightBottomGrid.alterBarValue(intensityBar, 56)
+                                script: rightBottomGrid.alterBarValue(
+                                            intensityBar, 56)
                             }
-                            PropertyAnimation { duration: 100 }
+                            PropertyAnimation {
+                                duration: 100
+                            }
                         }
                     }
                     BarGraph {
@@ -570,16 +643,25 @@ Rectangle {
                         color: "transparent"
                         function doAddDefaultData() {
                             smallgraph.data[0].clear()
-                            for ( var i = 0; i < 200; i++ ) {
-                                smallgraph.data[0].append({ yvalue: 20 + Math.random()*4-2, first_color: "#3B5100", second_color: "#77A200" });
+                            for (var i = 0; i < 200; i++) {
+                                smallgraph.data[0].append({
+                                                              yvalue: 20 + Math.random(
+                                                                          ) * 4 - 2,
+                                                              first_color: "#3B5100",
+                                                              second_color: "#77A200"
+                                                          })
                             }
                         }
                         function doAddAlienData() {
                             smallgraph.data[0].clear()
-                            var alienSequenceData = Array(2, 3, 5, 10, 20, 40, 90, 140, 200, 270, 0, 0,
-                                                  0, 0, 1, 10, 20, 40, 60, 80, 60, 40, 20, 10, 1, 0, 0, 0);
-                            for ( var i = 0; i < alienSequenceData.length*4; i++ ) {
-                                smallgraph.data[0].append({ yvalue: alienSequenceData[Math.floor(i/4)] / 2.5, first_color: "#FF1717", second_color: "#7A0B0B" })
+                            var alienSequenceData = [2, 3, 5, 10, 20, 40, 90, 140, 200, 270, 0, 0, 0, 0, 1, 10, 20, 40, 60, 80, 60, 40, 20, 10, 1, 0, 0, 0]
+                            for (var i = 0; i < alienSequenceData.length * 4; i++) {
+                                smallgraph.data[0].append({
+                                                              yvalue: alienSequenceData[Math.floor(
+                                                                      i / 4)] / 2.5,
+                                                              first_color: "#FF1717",
+                                                              second_color: "#7A0B0B"
+                                                          })
                             }
                         }
                         Text {
@@ -587,20 +669,51 @@ Rectangle {
                             states: [
                                 State {
                                     name: "NormalState"
-                                    PropertyChanges { target: smallDiagramText; text: "No abnormal activity detected." }
-                                    PropertyChanges { target: smallDiagramText; color: "white" }
-                                    PropertyChanges { target: smallDiagramText; x: 20 }
-                                    PropertyChanges { target: smallDiagramTextBlink; running: false }
-                                    PropertyChanges { target: smallDiagramText; opacity: 1 }
-                                    StateChangeScript { script: smallgraph.doAddDefaultData() }
+                                    PropertyChanges {
+                                        target: smallDiagramText
+                                        text: "No abnormal activity detected."
+                                    }
+                                    PropertyChanges {
+                                        target: smallDiagramText
+                                        color: "white"
+                                    }
+                                    PropertyChanges {
+                                        target: smallDiagramText
+                                        x: 20
+                                    }
+                                    PropertyChanges {
+                                        target: smallDiagramTextBlink
+                                        running: false
+                                    }
+                                    PropertyChanges {
+                                        target: smallDiagramText
+                                        opacity: 1
+                                    }
+                                    StateChangeScript {
+                                        script: smallgraph.doAddDefaultData()
+                                    }
                                 },
                                 State {
                                     name: "AlienActivityState"
-                                    PropertyChanges { target: smallDiagramText; text: "ALIEN ACTIVITY DETECTED" }
-                                    PropertyChanges { target: smallDiagramText; color: "#FF2C2C" }
-                                    PropertyChanges { target: smallDiagramText; x: 60 }
-                                    PropertyChanges { target: smallDiagramTextBlink; running: true }
-                                    StateChangeScript { script: smallgraph.doAddAlienData() }
+                                    PropertyChanges {
+                                        target: smallDiagramText
+                                        text: "ALIEN ACTIVITY DETECTED"
+                                    }
+                                    PropertyChanges {
+                                        target: smallDiagramText
+                                        color: "#FF2C2C"
+                                    }
+                                    PropertyChanges {
+                                        target: smallDiagramText
+                                        x: 60
+                                    }
+                                    PropertyChanges {
+                                        target: smallDiagramTextBlink
+                                        running: true
+                                    }
+                                    StateChangeScript {
+                                        script: smallgraph.doAddAlienData()
+                                    }
                                 }
                             ]
                             font.pointSize: 28
@@ -610,12 +723,26 @@ Rectangle {
                             y: 20
                             SequentialAnimation {
                                 id: smallDiagramTextBlink
-                                running: false;
-                                loops: Animation.Infinite;
-                                NumberAnimation { target: smallDiagramText; property: "opacity"; to: 1.0; duration: 20 }
-                                PropertyAnimation { duration: 300 }
-                                NumberAnimation { target: smallDiagramText; property: "opacity"; to: 0.0; duration: 20 }
-                                PropertyAnimation { duration: 300 }
+                                running: false
+                                loops: Animation.Infinite
+                                NumberAnimation {
+                                    target: smallDiagramText
+                                    property: "opacity"
+                                    to: 1.0
+                                    duration: 20
+                                }
+                                PropertyAnimation {
+                                    duration: 300
+                                }
+                                NumberAnimation {
+                                    target: smallDiagramText
+                                    property: "opacity"
+                                    to: 0.0
+                                    duration: 20
+                                }
+                                PropertyAnimation {
+                                    duration: 300
+                                }
                             }
                         }
                     }
@@ -655,74 +782,88 @@ Rectangle {
                             height: 12
                             radius: 6
                             Behavior on x {
-                                NumberAnimation { duration: 300 }
+                                NumberAnimation {
+                                    duration: 300
+                                }
                             }
                             Behavior on y {
-                                NumberAnimation { duration: 300 }
+                                NumberAnimation {
+                                    duration: 300
+                                }
                             }
                             function jiggle() {
                                 var drift_x = 0
                                 var drift_y = 0
-                                if ( ray.x > 110 ) {
-                                    drift_x -= 9;
+                                if (ray.x > 110) {
+                                    drift_x -= 9
                                 }
-                                if ( ray.y > 110 ) {
-                                    drift_y -= 9;
+                                if (ray.y > 110) {
+                                    drift_y -= 9
                                 }
-                                if ( ray.x < 20 ) {
-                                    drift_x += 9;
+                                if (ray.x < 20) {
+                                    drift_x += 9
                                 }
-                                if ( ray.y < 20 ) {
-                                    drift_y += 9;
+                                if (ray.y < 20) {
+                                    drift_y += 9
                                 }
-                                
+
                                 // drift towards the center
-                                drift_x += (65 - ray.x) * 0.2;
-                                drift_y += (85 - ray.y) * 0.2;
-                                
-                                drift_x += Math.random() * 36 - 18;
-                                drift_y += Math.random() * 36 - 18;
-                                
+                                drift_x += (65 - ray.x) * 0.2
+                                drift_y += (85 - ray.y) * 0.2
+
+                                drift_x += Math.random() * 36 - 18
+                                drift_y += Math.random() * 36 - 18
+
                                 ray.x += drift_x
                                 ray.y += drift_y
-                                
-                                function sqr(x) { return x*x; }
-                                var d = Math.sqrt(sqr(ray.x-65, 2) + sqr(ray.y-85));
-                                if ( d > 65 ) {
+
+                                function sqr(x) {
+                                    return x * x
+                                }
+                                var d = Math.sqrt(sqr(ray.x - 65,
+                                                      2) + sqr(ray.y - 85))
+                                if (d > 65) {
                                     large_circle.color = "#333333"
                                     smaller_circle.color = "#333333"
                                     beam_status_text.text = "Beam Alignment: <span style=\"color:red\">CRITICAL</span>"
-                                }
-                                else if ( d <= 65 && d > 35 ) {
-                                    large_circle.color = "#CFA600";
+                                } else if (d <= 65 && d > 35) {
+                                    large_circle.color = "#CFA600"
                                     smaller_circle.color = "#333333"
                                     beam_status_text.text = "Beam Alignment: <span style=\"color:yellow\">ADJUSTING...</span>"
-                                }
-                                else {
+                                } else {
                                     large_circle.color = "#333333"
                                     smaller_circle.color = "#469200"
                                     beam_status_text.text = "Beam Alignment: <span style=\"color:green\">LOCKED</span>"
                                 }
                             }
                             function emitWave() {
-                                var comp = Qt.createComponent("RayWave.qml");
+                                var comp = Qt.createComponent("RayWave.qml")
                                 var sprite = comp.createObject(crosshair, {
-                                    "size": 10,
-                                    "xzero": ray.x + 6,
-                                    "yzero": ray.y + 6
-                                });
+                                                                   size: 10,
+                                                                   xzero: ray.x + 6,
+                                                                   yzero: ray.y + 6
+                                                               })
+                            }
+
+                            SequentialAnimation {
+                                running: true
+                                loops: Animation.Infinite
+                                ScriptAction {
+                                    script: ray.jiggle()
+                                }
+                                PropertyAnimation {
+                                    duration: 300
+                                }
                             }
                             SequentialAnimation {
                                 running: true
                                 loops: Animation.Infinite
-                                ScriptAction { script: ray.jiggle() }
-                                PropertyAnimation { duration: 300 }
-                            }
-                            SequentialAnimation {
-                                running: true
-                                loops: Animation.Infinite
-                                ScriptAction { script: ray.emitWave() }
-                                PropertyAnimation { duration: 500 }
+                                ScriptAction {
+                                    script: ray.emitWave()
+                                }
+                                PropertyAnimation {
+                                    duration: 500
+                                }
                             }
                         }
                         Rectangle {
@@ -754,7 +895,9 @@ Rectangle {
                                 color: "white"
                             }
                             Behavior on color {
-                                ColorAnimation { duration: 200 }
+                                ColorAnimation {
+                                    duration: 200
+                                }
                             }
                         }
                         Rectangle {
@@ -770,7 +913,9 @@ Rectangle {
                                 color: "white"
                             }
                             Behavior on color {
-                                ColorAnimation { duration: 200 }
+                                ColorAnimation {
+                                    duration: 200
+                                }
                             }
                         }
                         Rectangle {
@@ -790,7 +935,7 @@ Rectangle {
             }
         }
     }
-    
+
     Rectangle {
         id: loadscreen
         anchors.horizontalCenter: parent.horizontalCenter
@@ -805,7 +950,7 @@ Rectangle {
                 family: fancyfont.name
             }
             anchors.horizontalCenter: parent.horizontalCenter
-//             anchors.verticalCenter: parent.verticalCenter
+            //             anchors.verticalCenter: parent.verticalCenter
             y: -11
             color: "white"
             text: "Initializing..."
@@ -835,14 +980,41 @@ Rectangle {
             SequentialAnimation {
                 id: run_bar
                 running: false
-                NumberAnimation { target: bar; property: "width"; to: loadscreen.width - loadscreen.border.width; duration: 2000 }
-                PropertyAnimation { target: loadscreenText; property: "text"; to: "Done."; duration: 0 }
-                PropertyAnimation { duration: 500 }
-                ParallelAnimation {
-                    NumberAnimation { target: bar; property: "opacity"; to: 0; duration: 200 }
-                    NumberAnimation { target: loadscreen; property: "opacity"; to: 0; duration: 200 }
+                NumberAnimation {
+                    target: bar
+                    property: "width"
+                    to: loadscreen.width - loadscreen.border.width
+                    duration: 2000
                 }
-                PropertyAnimation { target: canvas; property: "state"; to: "BusyScreenState"; duration: 0 }
+                PropertyAnimation {
+                    target: loadscreenText
+                    property: "text"
+                    to: "Done."
+                    duration: 0
+                }
+                PropertyAnimation {
+                    duration: 500
+                }
+                ParallelAnimation {
+                    NumberAnimation {
+                        target: bar
+                        property: "opacity"
+                        to: 0
+                        duration: 200
+                    }
+                    NumberAnimation {
+                        target: loadscreen
+                        property: "opacity"
+                        to: 0
+                        duration: 200
+                    }
+                }
+                PropertyAnimation {
+                    target: canvas
+                    property: "state"
+                    to: "BusyScreenState"
+                    duration: 0
+                }
             }
         }
         border.color: "black"
@@ -852,17 +1024,31 @@ Rectangle {
         states: [
             State {
                 name: "NotVisibleState"
-                PropertyChanges { target: loadscreen; visible: false }
+                PropertyChanges {
+                    target: loadscreen
+                    visible: false
+                }
             },
             State {
                 name: "VisibleState"
-                PropertyChanges { target: loadscreen; visible: true }
-                PropertyChanges { target: loadscreen; opacity: 1 }
-                PropertyChanges { target: run_bar; running: true }
+                PropertyChanges {
+                    target: loadscreen
+                    visible: true
+                }
+                PropertyChanges {
+                    target: loadscreen
+                    opacity: 1
+                }
+                PropertyChanges {
+                    target: run_bar
+                    running: true
+                }
             }
         ]
         Behavior on opacity {
-            NumberAnimation { duration: 200 }
+            NumberAnimation {
+                duration: 200
+            }
         }
     }
 }

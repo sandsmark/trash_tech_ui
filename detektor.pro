@@ -1,2 +1,5 @@
 SOURCES += main.cpp
-QT += declarative
+QT += quick gui
+
+RESOURCES += \
+    resources.qrc
