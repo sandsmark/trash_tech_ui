@@ -168,7 +168,7 @@ Rectangle {
             }
             PropertyChanges {
                 target: smallDiagramText
-                state: "AlienActivityState"
+                state: "JammingActivityState"
             }
         }
     ]
@@ -198,7 +198,7 @@ Rectangle {
             if (blinkState == 1) {
                 text += "<span style=\"color: #95FF00\">|</span>"
             }
-            consolescreen_text.text = text
+            consolescreen_text.text = "$" + text
         }
         function addChar() {
             displayedCharacters += 1
@@ -252,14 +252,10 @@ Rectangle {
                 }
             }
         ]
-        Text {
+        FancyText {
             id: consolescreen_text
             color: "#489C26"
-            text: ""
-            font {
-                family: fancyfont.name
-                pointSize: 27
-            }
+            text: "$"
         }
     }
 
@@ -349,9 +345,8 @@ Rectangle {
                 id: consoletext_text
                 anchors.fill: parent
                 model: consoletext_model
-                delegate: Text {
+                delegate: FancyText {
                     font.pointSize: 16
-                    font.family: fancyfont.name
                     color: "#489C26"
                     text: display
                 }
@@ -364,16 +359,15 @@ Rectangle {
             height: canvas.height / 2 - 75
             color: "transparent"
             clip: true
+
             border {
                 width: 1
                 color: "#777777"
             }
-            Text {
+            FancyText {
                 id: diagramText
                 font.pointSize: 32
-                font.family: fancyfont.name
-                text: "Pressure compensation = 74.0"
-                color: "white"
+                text: "Noise compensation = 74.0"
                 x: 25
                 y: -5
                 SequentialAnimation {
@@ -445,100 +439,71 @@ Rectangle {
             Grid {
                 columns: 2
                 spacing: 0
-                Text {
-                    color: "white"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
+                FancyText {
+                    id: fancyText
                     text: "Beam status:"
                 }
-                Text {
+
+                FancyText {
                     color: "#80D600"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
                     text: "ACTIVE"
                     horizontalAlignment: Text.AlignRight
                 }
 
-                Text {
-                    color: "white"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
+                FancyText {
                     text: "Cooling system:"
                 }
-                Text {
+                FancyText {
                     color: "#80D600"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
                     text: "ONLINE"
                     horizontalAlignment: Text.AlignRight
                 }
 
-                Text {
-                    color: "white"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
+                FancyText {
                     text: "Alignment:"
                 }
-                Text {
+                FancyText {
                     color: "#D6C100"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
                     text: "RA: 35.1     DEC: 217.4"
                     horizontalAlignment: Text.AlignRight
                 }
 
-                Text {
-                    color: "white"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
+                FancyText {
                     text: "Detector Gain:"
                 }
-                Text {
+                FancyText {
                     color: "#80D600"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
                     text: "87.4 dB"
                     horizontalAlignment: Text.AlignRight
                 }
 
-                Text {
+                FancyText {
                     color: "white"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
                     text: "Emergency recovery system:"
                 }
-                Text {
+                FancyText {
                     color: "#FF2C2C"
                     font.family: fancyfont.name
-                    font.pointSize: 28
                     text: "OFF"
                     horizontalAlignment: Text.AlignRight
                 }
 
-                Text {
+                FancyText {
                     color: "white"
                     font.family: fancyfont.name
-                    font.pointSize: 28
                     text: "Network connection:"
                 }
-                Text {
+                FancyText {
                     color: "#80D600"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
                     text: "OK"
                     horizontalAlignment: Text.AlignRight
                 }
 
-                Text {
-                    color: "white"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
+                FancyText {
                     text: "Security system:"
                 }
-                Text {
+                FancyText {
                     color: canvas.state == "DangerousBusyScreenState" ? "#FF2C2C" : "#80D600"
-                    font.family: fancyfont.name
-                    font.pointSize: 28
                     text: canvas.state == "DangerousBusyScreenState" ? "JAMMED" : "ONLINE"
                     horizontalAlignment: Text.AlignRight
                 }
@@ -636,36 +601,47 @@ Rectangle {
                             }
                         }
                     }
+
                     BarGraph {
                         id: smallgraph
                         width: 425
                         height: 200
                         color: "transparent"
+
+                        Component.onCompleted: {
+                            for (var i = 0; i < Math.max(200, smallgraph.valueModel.count); i++) {
+                                smallgraph.valueModel.append({
+                                                                 yvalue: 20 + Math.random(
+                                                                             ) * 4 - 2,
+                                                                 first_color: "#3B5100",
+                                                                 second_color: "#77A200"
+                                                             })
+                            }
+                        }
+
                         function doAddDefaultData() {
-                            smallgraph.data[0].clear()
-                            for (var i = 0; i < 200; i++) {
-                                smallgraph.data[0].append({
-                                                              yvalue: 20 + Math.random(
-                                                                          ) * 4 - 2,
-                                                              first_color: "#3B5100",
-                                                              second_color: "#77A200"
-                                                          })
+                            for (var i = 0; i < smallgraph.valueModel.count; i++) {
+                                var currData = smallgraph.valueModel.get(i)
+                                currData.yvalue =  20 + Math.random() * 4 - 2
+                                currData.first_color = "#3B5100"
+                                currData.second_color = "#77A200"
                             }
                         }
-                        function doAddAlienData() {
-                            smallgraph.data[0].clear()
-                            var alienSequenceData = [2, 3, 5, 10, 20, 40, 90, 140, 200, 270, 0, 0, 0, 0, 1, 10, 20, 40, 60, 80, 60, 40, 20, 10, 1, 0, 0, 0]
-                            for (var i = 0; i < alienSequenceData.length * 4; i++) {
-                                smallgraph.data[0].append({
-                                                              yvalue: alienSequenceData[Math.floor(
-                                                                      i / 4)] / 2.5,
-                                                              first_color: "#FF1717",
-                                                              second_color: "#7A0B0B"
-                                                          })
+
+                        function doAddJammingData() {
+                            var jammingSequenceData = [2, 3, 5, 10, 20, 40, 90, 140, 200, 270, 0, 0, 0, 0, 1, 10, 20, 40, 60, 80, 60, 40, 20, 10, 1, 0, 0, 0]
+
+                            for (var i = 0; i < jammingSequenceData.length * 4; i++) {
+                                var currData = smallgraph.valueModel.get(i)
+                                currData.yvalue =  jammingSequenceData[Math.floor(i / 4)] / 2.5
+                                currData.first_color = "#FF1717"
+                                currData.second_color = "#7A0B0B"
                             }
                         }
-                        Text {
+
+                        FancyText {
                             id: smallDiagramText
+                            antialiasing: false
                             states: [
                                 State {
                                     name: "NormalState"
@@ -694,10 +670,10 @@ Rectangle {
                                     }
                                 },
                                 State {
-                                    name: "AlienActivityState"
+                                    name: "JammingActivityState"
                                     PropertyChanges {
                                         target: smallDiagramText
-                                        text: "ALIEN ACTIVITY DETECTED"
+                                        text: "JAMMING DETECTED"
                                     }
                                     PropertyChanges {
                                         target: smallDiagramText
@@ -712,13 +688,10 @@ Rectangle {
                                         running: true
                                     }
                                     StateChangeScript {
-                                        script: smallgraph.doAddAlienData()
+                                        script: smallgraph.doAddJammingData()
                                     }
                                 }
                             ]
-                            font.pointSize: 28
-                            font.family: fancyfont.name
-                            color: "white"
                             x: 20
                             y: 20
                             SequentialAnimation {
@@ -754,13 +727,8 @@ Rectangle {
                     height: 175
                     Rectangle {
                         anchors.centerIn: parent
-                        Text {
+                        FancyText {
                             id: beam_status_text
-                            color: "white"
-                            font {
-                                pointSize: 28
-                                family: fancyfont.name
-                            }
                             text: "Beam Status: <span style=\"color:yellow\">ADJUSTING...</span>"
                         }
                     }
@@ -941,18 +909,20 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.verticalCenter: parent.verticalCenter
         width: 400
-        height: 30
-        Text {
+        height: 40
+
+        FancyText {
             id: loadscreenText
             z: 200
-            font {
-                pointSize: 22
-                family: fancyfont.name
+            font.pointSize: 22
+            anchors {
+                centerIn: parent
+                verticalCenterOffset: -5
             }
-            anchors.horizontalCenter: parent.horizontalCenter
-            //             anchors.verticalCenter: parent.verticalCenter
-            y: -11
-            color: "white"
+
+//            anchors.centerIn: parent
+//            anchors.horizontalCenter: parent.horizontalCenter
+//            y: -11
             text: "Initializing..."
         }
         Rectangle {
@@ -977,15 +947,28 @@ Rectangle {
             width: 0
             height: parent.height - 2
             color: "#489C26"
-            SequentialAnimation {
-                id: run_bar
-                running: false
-                NumberAnimation {
-                    target: bar
-                    property: "width"
-                    to: loadscreen.width - loadscreen.border.width
-                    duration: 2000
+
+            Timer {
+                id: barAnimTimer
+                repeat: false
+                onTriggered: {
+                    var maxWidth = loadscreen.width - loadscreen.border.width
+                    if (bar.width >= maxWidth) {
+                        initFinishedAnimation.running = true
+                        return
+                    }
+
+                    var newWidth = (bar.width + Math.random() * 20 + 1)
+                    bar.width = Math.min(newWidth, maxWidth)
+                    barAnimTimer.interval = Math.random() * 100 + 10
+                    barAnimTimer.start()
                 }
+            }
+
+            SequentialAnimation {
+                id: initFinishedAnimation
+                running: false
+
                 PropertyAnimation {
                     target: loadscreenText
                     property: "text"
@@ -1040,7 +1023,7 @@ Rectangle {
                     opacity: 1
                 }
                 PropertyChanges {
-                    target: run_bar
+                    target: barAnimTimer
                     running: true
                 }
             }

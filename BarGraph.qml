@@ -5,25 +5,27 @@ Rectangle {
 
     state: "NotActiveState"
     property int lastValue: 100
-    property int isInAlienSequence: 0
+    property int isInJammingSequence: 0
+
+    property alias valueModel: diagramEntries
 
     function newDataValue() {
         barListView.positionViewAtEnd()
         if (canvas.state == "DangerousBusyScreenState"
-                && isInAlienSequence == 0) {
+                && isInJammingSequence == 0) {
             if (Math.random() < 0.1) {
-                isInAlienSequence = 1
+                isInJammingSequence = 1
             }
         }
-        if (isInAlienSequence > 0) {
-            var alienSequenceData = [2, 3, 5, 10, 20, 40, 90, 140, 200, 270, 0, 0, 0, 0, 1, 10, 20, 40, 60, 80, 60, 40, 20, 10, 1, 0, 0, 0]
-            if (isInAlienSequence >= alienSequenceData.length) {
-                isInAlienSequence = 0
+        if (isInJammingSequence > 0) {
+            var jammingSequenceData = [2, 3, 5, 10, 20, 40, 90, 140, 200, 270, 0, 0, 0, 0, 1, 10, 20, 40, 60, 80, 60, 40, 20, 10, 1, 0, 0, 0]
+            if (isInJammingSequence >= jammingSequenceData.length) {
+                isInJammingSequence = 0
             } else {
-                isInAlienSequence += 1
+                isInJammingSequence += 1
             }
-            data[0].append({
-                               yvalue: alienSequenceData[isInAlienSequence],
+            diagramEntries.append({
+                               yvalue: jammingSequenceData[isInJammingSequence],
                                first_color: "#FF1717",
                                second_color: "#7A0B0B"
                            })
@@ -44,7 +46,7 @@ Rectangle {
             } else if (Math.random() < 0.02) {
                 lastValue += Math.random() * 200 - 100
             }
-            data[0].append({
+            diagramEntries.append({
                                yvalue: lastValue,
                                first_color: "#3B5100",
                                second_color: "#77A200"
@@ -67,6 +69,19 @@ Rectangle {
             y: bargraph.height - yvalue
             width: 2
             opacity: 0.6
+
+            property int animDuration: Math.random() * 500
+            Behavior on y {
+                NumberAnimation {
+                    duration: animDuration
+                }
+            }
+            Behavior on height {
+                NumberAnimation {
+                    duration: animDuration
+                }
+            }
+
             gradient: Gradient {
                 GradientStop {
                     position: 1.0

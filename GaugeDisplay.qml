@@ -40,12 +40,10 @@ Rectangle {
         width: parent.width
         color: "black"
     }
-    Text {
+    FancyText {
         y: parent.height
         x: parent.width - 10
-        color: "white"
         text: parent.label
-        font.family: fancyfont.name
         font.pointSize: 17
         transform: Rotation {
             angle: 270

@@ -5,5 +5,6 @@
         <file>GaugeDisplay.qml</file>
         <file>Perfect Dark Zero.ttf</file>
         <file>RayWave.qml</file>
+        <file>FancyText.qml</file>
     </qresource>
 </RCC>
